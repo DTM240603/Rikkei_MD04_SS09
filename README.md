@@ -26,3 +26,22 @@ variable. PostgreSQL defaults to
 `PHARMACY_DB_URL`, `PHARMACY_DB_USERNAME`, and `PHARMACY_DB_PASSWORD` as needed.
 The password is not committed; set `PHARMACY_DB_PASSWORD` in the pharmacy
 service environment when the database requires authentication.
+
+## Refresh VAT without restarting
+
+Set `pharmacy.vat-rate` (as a percentage, for example `10`) in
+`pharmacy-service.properties` in the Git configuration repository. After
+committing and pushing the change, refresh the running pharmacy service:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/actuator/refresh
+```
+
+Calculate a bill by sending the medicine subtotal:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/v1/bill `
+  -ContentType "application/json" -Body '{"medicineTotal":100000}'
+```
+
+The response includes the medicine subtotal, VAT rate, VAT amount, and total.
